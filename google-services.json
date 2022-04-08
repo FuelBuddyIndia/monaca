@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "577233680530",
+    "firebase_url": "https://mypetrolpump-daeac.firebaseio.com",
+    "project_id": "mypetrolpump-daeac",
+    "storage_bucket": "mypetrolpump-daeac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577233680530:android:911feae94e15a673",
+        "android_client_info": {
+          "package_name": "com.anbfuels.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "577233680530-g318rrh76msq6dc0ro3vq5i7l0uhv8o6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNMWxzNWPBgifKcmY_52ktiQeIp1wnLXQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "577233680530-g318rrh76msq6dc0ro3vq5i7l0uhv8o6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

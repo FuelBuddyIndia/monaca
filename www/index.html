@@ -1,0 +1,411 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+ <meta charset="utf-8"><meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width,height=device-height">
+ <!--<meta http-equiv="Content-Security-Policy" content="default-src gap: * ; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * data: 'unsafe-inline'; connect-src * 'unsafe-inline'; frame-src *;">
+ -->
+ <title>FUELBUDDY</title>
+ <style>
+   @-webkit-keyframes spinapp {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spinapp {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+   .mainapploader-background {
+    height: 100%;
+    position: absolute;
+    margin-top: 72%;
+    margin-left: 42%;
+    z-index: 1;
+    background: transparent;
+    border: 2px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 4px solid #07b594;
+    border-right: 4px solid #07b594;
+    border-bottom: 4px solid white;
+    border-left: 4px solid white;
+    width: 60px;
+    height: 60px;
+    -webkit-animation: spinapp 1s linear infinite;
+    animation: spinapp 1s linear infinite;
+    background-repeat: no-repeat;
+   }
+    </style>
+ <script>
+ var fullpath="https://fuelbuddy.in/mobile/index.php";
+var curpath=fullpath;
+var paramsURL="?appmode=true";
+ var ios=false;
+ var appversion="19"; 
+ var pingerlastoffline=false;
+ var firstiframeload=true;
+ var networkState;
+ var pingercode=true;
+ var offlineshown=0;
+  var onlineshown=1;
+  var splashscreenshown=0;
+  var accessmode;
+  var serverincludedone=false;
+ </script>
+
+  <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="js/ShortcutPlugin.js"></script>
+  <!-- <script type="text/javascript" src="js/requestlocationaccuracy.js"></script> -->
+
+<script type='text/javascript'  src="js/jquery.min.js"></script>
+
+
+
+
+<script type='text/javascript' src="js/xl-toast.js"></script>
+
+<script type='text/javascript' src="js/index.js"></script>
+
+
+
+
+<script>
+
+
+$(window).on("message", function(e) {
+console.log("message");
+console.log(e.originalEvent.data);	
+data=e.originalEvent.data;
+if (data.type=="setlocalStorage" && data.success==true)
+{
+  localStorage.setItem(data.key,data.value);
+
+}
+
+if (data.type=="navigatorshare" && data.success==true)
+{
+   var options=data.options;
+    window.plugins.socialsharing.shareWithOptions(options,
+    function(result)
+    {
+        console.log(result);
+    },
+    function(error)
+    {
+        console.log(error);
+    });
+
+}
+
+
+if (data.type=="removelocalStorage" && data.success==true)
+{
+  localStorage.removeItem(data.key);
+
+}
+if (data.type=="newwindow")
+{
+var options="toolbarcolor=#07b594,location=yes,closebuttoncolor=#FFFFFF,hidenavigationbuttons=yes,closebuttoncaption=Close,hideurlbar=yes";
+window.open(data.url,data.target,options);
+}
+if (data.type=="newlocation" && data.success==false)
+{
+console.log("moving to a new location");
+      // $('#iframe-container').css('width',"0");
+			// $('#iframe-container').css('height',"0");
+}
+
+if (data.type=="loaded" && data.success==true)
+{
+curpath=data.location;
+console.log("loaded");
+
+if (firstiframeload==true) //first loader is handled separately
+	{
+		console.log("firstiframeload");
+		navigator.splashscreen.hide();
+		splashscreenshown=0;
+		
+		firstiframeload=false;
+		$('#iframe-container').css('width',"100%");
+			 $('#iframe-container').css('height',"100%");
+	if (curpath==null)
+	{
+	curpath=fullpath;
+	}
+   // $("#content").attr("src",curpath); //we have already loaded page
+	$('#iframe-container').css('visibility',"visible");
+	$('#iframe-container').css('display',"block");
+	$('#no-network').css('display',"none");
+	$('#no-network').css('visibility',"hidden");
+	$('#loader').css('display',"none");
+	$('#loader').css('visibility',"hidden");
+  accessmode="app";
+	if (ios==true)
+	{
+
+	setifrCookie('ios','true');
+  accessmode="appios";
+	}
+	setifrCookie('appmode','true');
+	setifrCookie('appversion',appversion);
+  if (localStorage.getItem("isloggedin")=="true")
+  {
+    setifrCookie("isloggedin",'true')
+  }
+	}
+}
+
+
+if (data.type=="geo" && data.success==false)
+{
+console.log("geo called");
+curpath=data.location;
+console.log("calling dialog");
+  calldialog();
+//calling gps dialog
+}
+
+if (data.type=="showloader" && data.success==true)
+{
+console.log("Showing Loader");
+//	$('#iframe-container').css('visibility',"hidden");
+//	$('#iframe-container').css('display',"none");
+	$('#no-network').css('display',"none");
+	$('#no-network').css('visibility',"hidden");
+	$('#loader').css('display',"block");
+	$('#loader').css('visibility',"visible");
+
+}
+
+if (data.type=="hideloader" && data.success==true)
+{
+console.log("Hiding Loader");
+	$('#iframe-container').css('visibility',"visible");
+	$('#iframe-container').css('display',"block");
+	$('#no-network').css('display',"none");
+	$('#no-network').css('visibility',"hidden");
+	$('#loader').css('display',"none");
+	$('#loader').css('visibility',"hidden");
+}
+
+if (data.type=="toastmessage" && data.success==true)
+{
+
+msg=data.msg;
+timeout=data.timeout||5000;
+position=data.position||'middle';
+toastmessage(msg,timeout,position);
+
+}
+if (data.type=="toastmessagehide" && data.success==true)
+{
+
+$.toasthide();
+
+}
+
+});
+
+
+
+
+function loadapp()
+{
+	console.log("inloadapp");
+	console.log("first:"+firstiframeload);
+	if (curpath==null)
+{
+curpath=fullpath;
+}
+	  $("#content").attr("src",curpath);
+	if (firstiframeload==false)
+	{
+ $('#iframe-container').css('width',"100%");
+			 $('#iframe-container').css('height',"100%");
+
+ 
+ $('#iframe-container').css('visibility',"visible");
+ $('#iframe-container').css('display',"block");
+ $('#no-network').css('display',"none");
+ $('#no-network').css('visibility',"hidden");
+  $('#loader').css('display',"none");
+ $('#loader').css('visibility',"hidden");
+	} 
+	
+	
+	
+if (ios==true)
+	{
+
+setifrCookie('ios','true');
+	}
+setifrCookie('appmode','true');
+setifrCookie('appversion',appversion);
+}//loadapp ends
+
+	  console.log("Adding DeviceReadyListener");
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+function onLoad()
+{
+
+
+			var networkState = navigator.network.connection.type;
+    if (networkState == Connection.NONE){
+	//alert(networkState);
+                			 toastmessage("Please check your Internet Connection");
+	};
+	
+ // $('#loader').css('display',"none");
+ // $('#loader').css('visibility',"hidden");		
+
+}
+
+navigator.geolocation.getCurrentPosition(function(position){},function(error){
+  calldialog();
+});
+
+function calldialog() {
+  document.addEventListener("deviceready",function(){
+    //default dialog
+	console.log("calling dialog");
+    cordova.dialogGPS();
+  });
+  console.log("in calldialog");
+}
+
+
+function onDeviceReady()
+{
+  if(window.MobileAccessibility){
+        window.MobileAccessibility.usePreferredTextZoom(false);
+    }
+//navigator.splashscreen.show();
+splashscreenshown=1;
+		 // $('#loader').css('display',"none");
+ // $('#loader').css('visibility',"hidden");	
+
+
+
+  //cordova.plugins.backgroundMode.setEnabled(true);
+  //cordova.plugins.backgroundMode.setDefaults({ silent: true });  
+  
+		
+				
+				//setTimeout(function() {
+				//navigator.splashscreen.hide();
+				//}, 5000);
+        // Now safe to use device APIs
+		console.log ("Device Ready");
+		//alert("device ready");
+		
+		if (cordova.platformId == 'android') {
+  //StatusBar.overlaysWebView(true);
+	//StatusBar.backgroundColorByHexString("#07b594");
+	AndroidFullScreen.showUnderStatusBar(function()
+	{
+	console.log("moved below status bar");	
+	}, function()
+	{
+	console.log("error: could not move below status bar");	
+	});
+	
+	AndroidFullScreen.showSystemUI(function()
+	{
+	console.log("showing system UI bar");	
+	}, function()
+	{
+	console.log("error: could not call show system UI");	
+	});
+    // StatusBar.hide();
+    	StatusBar.backgroundColorByHexString("#07b594");
+		}
+
+			 window.open = cordova.InAppBrowser.open; 
+			 var pingerfailcount=0;
+	//pushNotification = window.plugins.pushNotification;
+	//document.addEventListener("resume",Foreground,false);
+document.addEventListener("offline", onOffline, false);
+document.addEventListener("online", onOnline, false);
+document.addEventListener("resume", onResume, false);
+
+setInterval(function(){ 
+  pinger();
+  
+  if (pingercode==false)
+  {
+  console.log("pingercode:"+pingercode);
+	  pingerOffline();
+	  pingerlastoffline=true;
+  }
+	if (pingercode==true)
+  {
+	  pingerOnline(pingerlastoffline);
+	  onlineshown=1;
+     
+  }  
+  
+  
+  }, 7000);
+
+  //networkState = navigator.network.connection.type;
+
+		 //setTimeout(function() {
+         //navigator.splashscreen.hide();
+   // }, 1000);
+
+//Disable for IOS
+		//if (!localStorage.getItem('shortcut')) {
+     //window.plugins.Shortcut.CreateShortcut("MyPP", ShortCutsuccessfunc, ShortCutfailfunc);
+	  //}
+	  var networkState = navigator.network.connection.type;
+     if (networkState == Connection.NONE){
+                			 toastmessage("Please Check your Internet Connection");
+							 if (offlineshown==0)
+							{
+							//alert("networkstate offline");
+							//alert(networkState+"here");
+			 onOffline();
+			 }
+
+
+     }
+	 else
+		{
+	 loadapp();
+	 }
+}
+
+</script>
+</head>
+<body onload="onLoad()" style="margin:0px;padding:0px;">
+
+<div id="iframe-container" style="width:100%;height:100%;display:none; visibility:hidden;">
+ <iframe id="content" allow="geolocation *;" src=""  frameborder="0"  style="position: absolute; height: 100%; width:100%; border: none"
+onload="this.width=screen.width;this.height=screen.height;"
+
+
+></iframe>
+ </div>
+
+ <!--Loader
+ Loader -->
+<div id="loader" class="mainapploader-background" style="display:none; visibility:hidden;">
+
+</div>
+
+ 
+<!-- No Networks-->
+<div id="no-network" style="width:100vw;height:100vh; background:whitesmoke;display:none;visibility:hidden;">
+<img src="images/network-error.jpg" alt="MyPP" style="
+	    margin-top: 46%;
+    margin-left: 16%;
+    height: 70vw;">
+<!--<div style="    font-size: 5vw;
+    color: #09e2b9;
+    font-family: fantasy;
+    margin-left: 36%;">Network Error</div>-->
+</div>
+<!--No Network -->
+ </body>
+</html>
